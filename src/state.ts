@@ -1,0 +1,1 @@
+// holds general global state of the game, e.g. when to move on to the next scene

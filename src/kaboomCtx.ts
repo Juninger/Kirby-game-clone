@@ -1,0 +1,1 @@
+// used to initialize the Kaboom.js library and export its context to be used elsewhere
