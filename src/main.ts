@@ -18,6 +18,23 @@ async function gameSetup() {
             bird: { from: 27, to: 28, speed: 4, loop: true },
         },
     });
+
+    k.loadSprite("level-1", "./level-1.png");
+
+    k.scene("level-1", () => {
+        k.setGravity(2100);
+        // assemble the game object for level 1
+        k.add([
+            // draw a rectangle, fill with width+height from the game canvas
+            k.rect(k.width(), k.height()), 
+            // add background color
+            k.color(k.Color.fromHex("#f7d7db")),
+            // makes this object unaffected by the camera
+            k.fixed(),
+        ]);
+    });
+
+    k.go("level-1");
 }
 
 gameSetup();
