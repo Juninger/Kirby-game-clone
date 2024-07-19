@@ -1,6 +1,6 @@
 // contains logic for player and mobs
 
-import { KaboomCtx } from "kaboom";
+import { GameObj, KaboomCtx } from "kaboom";
 import { scale } from "./constants";
 
 // creates game object for the player
@@ -25,4 +25,41 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         },
         "player", // tag
     ]);
+
+    // define what happens with the player when it collides with an "enemy"-tagged object 
+    player.onCollide("enemy", async (enemy: GameObj) => {
+        
+        // player inhales enemy
+        if (player.isInhaling && enemy.isInhalable) {
+            player.isInhaling = false; // disable the inhaling-status
+            k.destroy(enemy); // remove the enemy object
+            player.isFull = true; // change status of player to apply new sprite
+            return;
+        }
+
+        // player dies
+        if (player.hp() === 0) {
+            k.destroy(player); // removes the player object
+            k.go("level-1"); // respawn at start of current level (or latest checkpoint)
+            return;
+        }
+
+        // reduce player hp by 1 (default value)
+        player.hurt(); 
+        // display "flashing" animation for player sprite when hurt
+        await k.tween( // tween allows us to gradually change a value from one to another
+            player.opacity, // start value
+            0, // end value
+            0.05, // duration in seconds
+            (val) => (player.opacity = val), // tween magic and where to assign result
+            k.easings.linear // rate of change
+        );
+        await k.tween( // reverse previous tween to create blinking effect
+            player.opacity,
+            1,
+            0.05,
+            (val) => (player.opacity = val),
+            k.easings.linear
+        );
+    });
 }
