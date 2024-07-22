@@ -63,6 +63,11 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         );
     });
 
+    // logic for when the player finishes a level
+    player.onCollide("exit", () => {
+        k.go("level-2"); // replace with logic for "next scene" instead
+    });
+
     // assembles the game object for the inhale effect
     const inhaleEffect = k.add([
         k.sprite("assets", { anim: "kirbInhaleEffect" }), // define which assets to use for the sprite
@@ -93,4 +98,13 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
         inhaleEffect.flipX = false;
     });
+
+    // logic to handle player falling down from platforms
+    player.onUpdate(() => {
+        if (player.pos.y > 2000) { // higher y-value --> further down on the game canvas
+            k.go("level-1"); // (placeholder value) respawn player, will also reset the game state
+        }
+    });
+    
+    return player; // finished player object
 }
