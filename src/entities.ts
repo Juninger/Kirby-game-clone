@@ -62,4 +62,35 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
             k.easings.linear
         );
     });
+
+    // assembles the game object for the inhale effect
+    const inhaleEffect = k.add([
+        k.sprite("assets", { anim: "kirbInhaleEffect" }), // define which assets to use for the sprite
+        k.pos(),
+        k.scale(scale),
+        k.opacity(0), // initially not visible (toggled when player uses the "inhale skill")
+        "inhaleEffect", // tag
+    ]);
+    
+    // define hitbox area for the inhale effect
+    const inhaleZone = player.add([
+        k.area({ shape: new k.Rect(k.vec2(0), 20, 4) }), // definitions for hitbox size
+        k.pos(), // no initial position, will be based on player direction
+        "inhaleZone", // tag
+    ]);
+
+    // logic to position and flip the inhaleZone hitbox depending on the player's direction
+    inhaleZone.onUpdate(() => { // create an event that runs every frame as long as the game object exists
+        // since the inhale zone is a child of the player object, the position of it will be relative to the player (parent)
+        if (player.direction === "left") {
+            inhaleZone.pos = k.vec2(-14, 8), // THIS is relative to the player position
+            inhaleEffect.pos = k.vec2(player.pos.x - 60, player.pos.y + 0),
+            inhaleEffect.flipX = true;
+            return;
+        }
+        // inhale effect to the right
+        inhaleZone.pos = k.vec2(14, 8),
+        inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
+        inhaleEffect.flipX = false;
+    });
 }
