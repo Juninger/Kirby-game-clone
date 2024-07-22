@@ -28,7 +28,7 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
 
     // define what happens with the player when it collides with an "enemy"-tagged object 
     player.onCollide("enemy", async (enemy: GameObj) => {
-        
+
         // player inhales enemy
         if (player.isInhaling && enemy.isInhalable) {
             player.isInhaling = false; // disable the inhaling-status
@@ -45,7 +45,7 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         }
 
         // reduce player hp by 1 (default value)
-        player.hurt(); 
+        player.hurt();
         // display "flashing" animation for player sprite when hurt
         await k.tween( // tween allows us to gradually change a value from one to another
             player.opacity, // start value
@@ -76,7 +76,7 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         k.opacity(0), // initially not visible (toggled when player uses the "inhale skill")
         "inhaleEffect", // tag
     ]);
-    
+
     // define hitbox area for the inhale effect
     const inhaleZone = player.add([
         k.area({ shape: new k.Rect(k.vec2(0), 20, 4) }), // definitions for hitbox size
@@ -91,12 +91,11 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
             inhaleZone.pos = k.vec2(-14, 8), // THIS is relative to the player position
             inhaleEffect.pos = k.vec2(player.pos.x - 60, player.pos.y + 0),
             inhaleEffect.flipX = true;
-            return;
+        } else { // player direction === right
+            inhaleZone.pos = k.vec2(14, 8),
+            inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
+            inhaleEffect.flipX = false;
         }
-        // inhale effect to the right
-        inhaleZone.pos = k.vec2(14, 8),
-        inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
-        inhaleEffect.flipX = false;
     });
 
     // logic to handle player falling down from platforms
@@ -105,6 +104,6 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
             k.go("level-1"); // (placeholder value) respawn player, will also reset the game state
         }
     });
-    
+
     return player; // finished player object
 }
