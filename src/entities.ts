@@ -1,7 +1,25 @@
 // contains logic for player and mobs
 
-import { GameObj, KaboomCtx } from "kaboom";
+import { AreaComp, BodyComp, DoubleJumpComp, GameObj, HealthComp, KaboomCtx, OpacityComp, PosComp, ScaleComp, SpriteComp } from "kaboom";
 import { scale } from "./constants";
+
+// custom type for the player object (modified version of the default KaboomJS GameObj)
+type PlayerGameObj = GameObj<
+    SpriteComp &
+    AreaComp &
+    BodyComp &
+    PosComp &
+    ScaleComp &
+    DoubleJumpComp &
+    HealthComp &
+    OpacityComp &
+    {
+        speed: number;
+        direction: string;
+        isInhaling: boolean;
+        isFull: boolean;
+    }
+>;
 
 // creates game object for the player
 export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
@@ -89,12 +107,12 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
         // since the inhale zone is a child of the player object, the position of it will be relative to the player (parent)
         if (player.direction === "left") {
             inhaleZone.pos = k.vec2(-14, 8), // THIS is relative to the player position
-            inhaleEffect.pos = k.vec2(player.pos.x - 60, player.pos.y + 0),
-            inhaleEffect.flipX = true;
+                inhaleEffect.pos = k.vec2(player.pos.x - 60, player.pos.y + 0),
+                inhaleEffect.flipX = true;
         } else { // player direction === right
             inhaleZone.pos = k.vec2(14, 8),
-            inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
-            inhaleEffect.flipX = false;
+                inhaleEffect.pos = k.vec2(player.pos.x + 60, player.pos.y + 0),
+                inhaleEffect.flipX = false;
         }
     });
 
@@ -106,4 +124,37 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
     });
 
     return player; // finished player object
+}
+
+// defines player controls for the game
+export function setControls(k: KaboomCtx, player: PlayerGameObj) {
+    // reference variable to the inhale effect we added in makePlayer()
+    const inhaleEffectRef = k.get("inhaleEffect")[0]; // k.get() returns an array with all objects tagged with "inhaleEffect", we want the first (and only)
+
+    k.onKeyDown((key) => {
+        switch (key) {
+            case "left":
+                player.direction = "left";
+                player.flipX = true; // flip the sprite 
+                player.move(-player.speed, 0); // we use - to move to the left
+                break;
+
+            case "right":
+                player.direction = "right";
+                player.flipX = false;
+                player.move(player.speed, 0);
+                break;
+            
+            case "z": // inhale effect
+                if (player.isFull) { 
+                    player.play("kirbFull"); // play specified animation
+                    inhaleEffectRef.opacity = 0; // hide the inhale effect
+                    break;
+                }
+                player.isInhaling = true;
+                player.play("kirbInhaling"); // play inhale effect animation
+                inhaleEffectRef.opacity = 1; // show the inhale effect
+                break;
+        }
+    });
 }

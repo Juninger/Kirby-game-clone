@@ -1,6 +1,6 @@
 // entry point of the project
 
-import { makePlayer } from "./entities";
+import { makePlayer, setControls } from "./entities";
 import { k } from "./kaboomCtx";
 import { makeMap } from "./utils";
 
@@ -50,6 +50,9 @@ async function gameSetup() {
             level1SpawnPoints.player[0].x,
             level1SpawnPoints.player[0].y
         );
+
+        // add controls to the game
+        setControls(k, player);
 
         // add player to the game
         k.add(player);
