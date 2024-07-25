@@ -61,13 +61,13 @@ async function gameSetup() {
         k.camScale(0.7, 0.7);
         k.onUpdate(() => { // event that runs every frame (~60 times per second)
             // make the camera follow the player
-            if (player.pos.x < level1Layout.pos.x + 432) { 
+            if (player.pos.x < level1Layout.pos.x + 432) { // stops camera from panning out of bounds at the end of the level
                 k.camPos(player.pos.x + 500, 800); // adjust camera so that the player appears on the left side of the screen at height 800
             }
         });
     });
 
     k.go("level-1");
-}
+};
 
 gameSetup();
