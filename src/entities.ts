@@ -21,6 +21,12 @@ type PlayerGameObj = GameObj<
     }
 >;
 
+// defines types of player actions that needs an input
+type Action = "moveLeft" | "moveRight" | "inhale";
+
+// specifies valid input keys for performing an Action
+type KeyMap = Record<"left" | "a" | "right" | "d" | "z" | "1", Action>;
+
 // creates game object for the player
 export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
     const player = k.make([
@@ -124,37 +130,51 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
     });
 
     return player; // finished player object
-}
+};
 
 // defines player controls for the game
 export function setControls(k: KaboomCtx, player: PlayerGameObj) {
     // reference variable to the inhale effect we added in makePlayer()
     const inhaleEffectRef = k.get("inhaleEffect")[0]; // k.get() returns an array with all objects tagged with "inhaleEffect", we want the first (and only)
 
-    k.onKeyDown((key) => {
-        switch (key) {
-            case "left":
+    // defines control scheme and allows multiple inputs for the same Action
+    const keyMappings: KeyMap = {
+        left: "moveLeft",
+        a: "moveLeft",
+        right: "moveRight",
+        d: "moveRight",
+        z: "inhale",
+        '1': "inhale"
+    };
+
+    k.onKeyDown((key: string) => { // pressed key will be handled as any string
+
+        if (!(key in keyMappings)) return; // invalid input, do nothing
+        const action = keyMappings[key as keyof KeyMap]; // fetch action for pressed key
+
+        switch (action) {
+            case "moveLeft": // left
                 player.direction = "left";
                 player.flipX = true; // flip the sprite 
                 player.move(-player.speed, 0); // we use - to move to the left
                 break;
 
-            case "right":
+            case "moveRight": // right
                 player.direction = "right";
                 player.flipX = false;
                 player.move(player.speed, 0);
                 break;
-            
-            case "z": // inhale effect
-                if (player.isFull) { 
-                    player.play("kirbFull"); // play specified animation
+
+            case "inhale": // inhale effect
+                if (player.isFull) {
+                    player.play("kirbFull"); // play kirbFull animation
                     inhaleEffectRef.opacity = 0; // hide the inhale effect
-                    break;
+                } else {
+                    player.isInhaling = true;
+                    player.play("kirbInhaling"); // play inhale effect animation
+                    inhaleEffectRef.opacity = 1; // show the inhale effect
                 }
-                player.isInhaling = true;
-                player.play("kirbInhaling"); // play inhale effect animation
-                inhaleEffectRef.opacity = 1; // show the inhale effect
                 break;
         }
     });
-}
+};
