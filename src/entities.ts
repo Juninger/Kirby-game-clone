@@ -177,4 +177,11 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
                 break;
         }
     });
+
+    // jumping
+    k.onKeyPress((key) => {
+        if (key == 'x' || key == 'space') { // x or spacebar
+            player.doubleJump(); // amount is limited in the playerObject creation
+        }
+    });
 };
