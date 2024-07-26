@@ -184,4 +184,40 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
             player.doubleJump(); // amount is limited in the playerObject creation
         }
     });
+
+    // spit out an enemy
+    k.onKeyRelease((key) => {
+        if (key == 'z') {
+            if (player.isFull) { // an enemy is currently swallowed (ready to be spit out)
+                player.play("kirbInhaling"); // same sprite/animation for inhaling and spitting
+                const shootingStar = k.add([ // create game object for spitting ability
+                    k.sprite("assets", {
+                        anim: "shootingStar",
+                        flipX: player.direction === "right",
+                    }),
+                    // definitions for size and position of the ability sprite
+                    k.area({ shape: new k.Rect(k.vec2(5, 4), 6, 6) }),
+                    k.pos(
+                        player.direction === "left" ? player.pos.x - 80 : player.pos.x + 80,
+                        player.pos.y + 5
+                    ),
+                    k.scale(scale),
+                    player.direction === "left" // move the sprite
+                        ? k.move(k.LEFT, 800)
+                        : k.move(k.RIGHT, 800),
+                    "shootingStar", // tag
+                ]);
+                // destroy the projectile when it collides with terrain
+                shootingStar.onCollide("platform", () => k.destroy(shootingStar));
+
+                player.isFull = false; // reset isFull status to allow player to swallow a new enemy
+                k.wait(1, () => player.play("kirbIdle")); // wait one second before reverting player sprite to the idle status
+                return;
+            }
+
+            inhaleEffectRef.opacity = 0; // hide inhale effect
+            player.isInhaling = false; // no longer inhaling
+            player.play("kirbIdle"); // revert to default sprite
+        }
+    });
 };
