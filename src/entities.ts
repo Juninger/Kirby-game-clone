@@ -221,3 +221,18 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
         }
     });
 };
+
+export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
+    const flame = k.add([
+        k.sprite("assets", { anim: "flame" }), // sprite selection
+        k.scale(scale), // scale the sprite
+        k.pos(posX * scale, posY * scale), // position of enemy
+        k.area({ // hitbox
+            shape: new k.Rect(k.vec2(4, 6), 8, 10),
+            collisionIgnore: ["enemy"], // make enemies not collide with each other
+        }),
+        k.body(), // makes this game object "solid" to interact with gravity, platforms etc
+        k.state("idle", ["idle", "jump"]), // available states for this enemy (default state, [possible states])
+        "enemy", // tag
+    ]);
+}
