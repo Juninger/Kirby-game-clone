@@ -187,7 +187,7 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
 
     // spit out an enemy
     k.onKeyRelease((key) => {
-        if (key == 'z') {
+        if (key == 'z' || key == '1') {
             if (player.isFull) { // an enemy is currently swallowed (ready to be spit out)
                 player.play("kirbInhaling"); // same sprite/animation for inhaling and spitting
                 const shootingStar = k.add([ // create game object for spitting ability
