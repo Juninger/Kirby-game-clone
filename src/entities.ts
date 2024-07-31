@@ -235,4 +235,23 @@ export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
         k.state("idle", ["idle", "jump"]), // available states for this enemy (default state, [possible states])
         "enemy", // tag
     ]);
+
+
+    // states for flame enemy, very simple AI that repeatedly makes the enemy jump after being idle for 1 second on the ground 
+    flame.onStateEnter("idle", async () => {
+        await k.wait(1); // wait for 1 second
+        flame.enterState("jump"); // switch to the jump-state
+    });
+
+    flame.onStateEnter("jump", async () => {
+        flame.jump(1000);
+    });
+
+    flame.onStateUpdate("jump", async () => { // runs every frame WHILE in the jump-state
+        if (flame.isGrounded()) { 
+            flame.enterState("idle"); // switch to the idle-state
+        }
+    });
+
+    return flame;
 }
