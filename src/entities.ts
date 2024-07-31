@@ -222,6 +222,33 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
     });
 };
 
+// logic for inhaling and shooting out enemies
+export function makeInhalable(k: KaboomCtx, enemy: GameObj) {
+
+    // while enemy is within the hitbox of the inhaleZone of the player, make the enemy inhalable
+    enemy.onCollide("inhaleZone", () => {
+        enemy.isInhalable = true; // this happens even if the player is not currently using the inhale-skill (inhaleZone hitbox could still be invisible)
+    });
+
+    // revert the isInhalable status if the enemy leaves the player's inhaleZone hitbox
+    enemy.onCollideEnd("inhaleZone", () => {
+        enemy.isInhalable = false; 
+    });
+
+    // if the enemy gets hit with the shootingStar projectile, destroy the game objects for both (enemy & shootingStar)
+    enemy.onCollide("shootingStar", (shootingStar: GameObj) => {
+        k.destroy(enemy);
+        k.destroy(shootingStar);
+    });
+
+    const playerRef = k.get("player")[0]; // fetch reference to the player game object
+    enemy.onUpdate(() => { // runs every frame while specified enemy game object exists
+        if (playerRef.isInhaling && enemy.isInhalable) { // player is using the inhale skill and enemy is within inhaleZone hitbox
+            playerRef.direction === "right" ? enemy.move(-800, 0) : enemy.move(800, 0); // decide which direction to move enemy object when inhaled
+        }
+    });
+}
+
 export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
     const flame = k.add([
         k.sprite("assets", { anim: "flame" }), // sprite selection
