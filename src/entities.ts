@@ -263,6 +263,7 @@ export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
         "enemy", // tag
     ]);
 
+    makeInhalable(k, flame); // manages movement in-and-out of the the player's inhaleZone hitbox 
 
     // states for flame enemy, very simple AI that repeatedly makes the enemy jump after being idle for 1 second on the ground 
     flame.onStateEnter("idle", async () => {

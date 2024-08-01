@@ -1,6 +1,6 @@
 // entry point of the project
 
-import { makePlayer, setControls } from "./entities";
+import { makeFlameEnemy, makePlayer, setControls } from "./entities";
 import { k } from "./kaboomCtx";
 import { makeMap } from "./utils";
 
@@ -65,6 +65,12 @@ async function gameSetup() {
                 k.camPos(player.pos.x + 500, 870); // adjust camera so that the player appears on the left side of the screen at height 870
             }
         });
+
+        // add flame enemies to game: iterates spawnpoints and create game objects
+        for (const flame of level1SpawnPoints.flame) {
+            makeFlameEnemy(k, flame.x, flame.y);
+        }
+
     });
 
     k.go("level-1");
