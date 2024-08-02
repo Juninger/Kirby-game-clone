@@ -260,6 +260,7 @@ export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
         }),
         k.body(), // makes this game object "solid" to interact with gravity, platforms etc
         k.state("idle", ["idle", "jump"]), // available states for this enemy (default state, [possible states])
+        { isInhalable: false }, // flips to true when inside hitbox of player's inhaleZone
         "enemy", // tag
     ]);
 
@@ -282,4 +283,24 @@ export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
     });
 
     return flame;
+}
+
+export function makeGuyEnemy(k: KaboomCtx, posX: number, posY: number) {
+    const guy = k.add([
+        k.sprite("assets", { anim: "guyWalk" }), // sprite selection
+        k.scale(scale), // scale the sprite
+        k.pos(posX * scale, posY * scale), // position of enemy
+        k.area({ // hitbox
+            shape: new k.Rect(k.vec2(2, 3.9), 12, 12),
+            collisionIgnore: ["enemy"], // make enemies not collide with each other
+        }),
+        k.body(), // makes this game object "solid" to interact with gravity, platforms etc
+        k.state("idle", ["idle", "left", "right"]), // available states for this enemy (default state, [possible states])
+        { isInhalable: false, speed: 100 }, // flips to true when inside hitbox of player's inhaleZone
+        "enemy", // tag
+    ]);
+
+    makeInhalable(k, guy); // manages movement in-and-out of the the player's inhaleZone hitbox 
+
+    return guy;
 }
