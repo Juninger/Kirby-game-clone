@@ -266,7 +266,7 @@ export function makeFlameEnemy(k: KaboomCtx, posX: number, posY: number) {
 
     makeInhalable(k, flame); // manages movement in-and-out of the the player's inhaleZone hitbox 
 
-    // states for flame enemy, very simple AI that repeatedly makes the enemy jump after being idle for 1 second on the ground 
+    // states for flame enemy, simple AI that repeatedly makes the enemy jump after being idle for 1 second on the ground 
     flame.onStateEnter("idle", async () => {
         await k.wait(1); // wait for 1 second
         flame.enterState("jump"); // switch to the jump-state
@@ -301,6 +301,32 @@ export function makeGuyEnemy(k: KaboomCtx, posX: number, posY: number) {
     ]);
 
     makeInhalable(k, guy); // manages movement in-and-out of the the player's inhaleZone hitbox 
+
+    // states for guy enemy, simple AI that repeatedly makes the enemy walk left and right 
+    guy.onStateEnter("idle", async () => {
+        await k.wait(1); // wait for 1 second
+        guy.enterState("left"); // switch to the left-state
+    });
+
+    guy.onStateEnter("left", async () => {
+        guy.flipX = false; // flip the sprite
+        await k.wait(2); // wait for 2 seconds
+        guy.enterState("right"); // switch to the right-state
+    });
+
+    guy.onStateUpdate("left", () => { // moves enemy WHILE in the left-state
+        guy.move(-guy.speed, 0);
+    });
+
+    guy.onStateEnter("right", async () => {
+        guy.flipX = true; // flip the sprite
+        await k.wait(2); // wait for 2 seconds
+        guy.enterState("left"); // switch to the left-state
+    });
+
+    guy.onStateUpdate("right", () => { // moves enemy WHILE in the right-state
+        guy.move(guy.speed, 0);
+    });
 
     return guy;
 }

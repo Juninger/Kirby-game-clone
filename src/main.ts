@@ -1,6 +1,6 @@
 // entry point of the project
 
-import { makeFlameEnemy, makePlayer, setControls } from "./entities";
+import { makeFlameEnemy, makeGuyEnemy, makePlayer, setControls } from "./entities";
 import { k } from "./kaboomCtx";
 import { makeMap } from "./utils";
 
@@ -69,6 +69,11 @@ async function gameSetup() {
         // add flame enemies to game: iterates spawnpoints and create game objects
         for (const flame of level1SpawnPoints.flame) {
             makeFlameEnemy(k, flame.x, flame.y);
+        }
+
+        // add guy enemies to game: iterates spawnpoints and create game objects
+        for (const guy of level1SpawnPoints.guy) {
+            makeGuyEnemy(k, guy.x, guy.y);
         }
 
     });
