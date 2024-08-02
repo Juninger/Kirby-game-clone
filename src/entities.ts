@@ -330,3 +330,28 @@ export function makeGuyEnemy(k: KaboomCtx, posX: number, posY: number) {
 
     return guy;
 }
+
+export function makeBirdEnemy(
+    k: KaboomCtx,
+    posX: number, 
+    posY: number,
+    speed: number
+) {
+    const bird = k.add([
+        k.sprite("assets", { anim: "bird" }), // sprite selection
+        k.scale(scale), // scale the sprite
+        k.pos(posX * scale, posY * scale), // position of enemy
+        k.area({ // hitbox
+            shape: new k.Rect(k.vec2(4, 6), 8, 10),
+            collisionIgnore: ["enemy"], // make enemies not collide with each other
+        }),
+        k.body({ isStatic: true }), // make bird not affected by gravity 
+        k.move(k.LEFT, speed), // bird keeps flying to the left
+        k.offscreen({ destroy: true, distance: 400 }), // destroys object when offscreen
+        "enemy" // tag
+    ]);
+
+    makeInhalable(k, bird);
+
+    return bird;
+}

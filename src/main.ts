@@ -1,6 +1,6 @@
 // entry point of the project
 
-import { makeFlameEnemy, makeGuyEnemy, makePlayer, setControls } from "./entities";
+import { makeBirdEnemy, makeFlameEnemy, makeGuyEnemy, makePlayer, setControls } from "./entities";
 import { k } from "./kaboomCtx";
 import { makeMap } from "./utils";
 
@@ -74,6 +74,19 @@ async function gameSetup() {
         // add guy enemies to game: iterates spawnpoints and create game objects
         for (const guy of level1SpawnPoints.guy) {
             makeGuyEnemy(k, guy.x, guy.y);
+        }
+
+        // add bird enemies to game: iterates spawnpoints and create game objects with pseudo-random movement speeds
+        for (const bird of level1SpawnPoints.bird) {
+            const availableSpeeds = [100, 200, 300]; // one of these will be picked when spawning the bird
+            k.loop(10, () => { // spawn a bird at a set interval (10 seconds default)
+                makeBirdEnemy(
+                    k,
+                    bird.x,
+                    bird.y,
+                    availableSpeeds[Math.floor(Math.random() * availableSpeeds.length)]
+                );
+            });
         }
 
     });
