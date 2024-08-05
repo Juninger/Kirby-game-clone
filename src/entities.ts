@@ -27,6 +27,20 @@ type Action = "moveLeft" | "moveRight" | "inhale";
 // specifies valid input keys for performing an Action
 type KeyMap = Record<"left" | "a" | "right" | "d" | "z" | "1", Action>;
 
+// tracks which actions are currently being triggered by the player (used to handle the 'multiple inputs scaling the action effect'-bug)
+type ActionState = {
+    moveLeft: boolean;
+    moveRight: boolean;
+    inhale: boolean;
+};
+
+// sets all actionstate defaults to false
+const actionState: ActionState = {
+    moveLeft: false,
+    moveRight: false,
+    inhale: false,
+};
+
 // creates game object for the player
 export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
     const player = k.make([
@@ -148,34 +162,9 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
     };
 
     k.onKeyDown((key: string) => { // pressed key will be handled as any string
-
         if (!(key in keyMappings)) return; // invalid input, do nothing
         const action = keyMappings[key as keyof KeyMap]; // fetch action for pressed key
-
-        switch (action) {
-            case "moveLeft": // left
-                player.direction = "left";
-                player.flipX = true; // flip the sprite 
-                player.move(-player.speed, 0); // we use - to move to the left
-                break;
-
-            case "moveRight": // right
-                player.direction = "right";
-                player.flipX = false;
-                player.move(player.speed, 0);
-                break;
-
-            case "inhale": // inhale effect
-                if (player.isFull) {
-                    player.play("kirbFull"); // play kirbFull animation
-                    inhaleEffectRef.opacity = 0; // hide the inhale effect
-                } else {
-                    player.isInhaling = true;
-                    player.play("kirbInhaling"); // play inhale effect animation
-                    inhaleEffectRef.opacity = 1; // show the inhale effect
-                }
-                break;
-        }
+        actionState[action] = true; // sets the actionstate for the requested action to active
     });
 
     // jumping
@@ -186,7 +175,11 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
     });
 
     // spit out an enemy
-    k.onKeyRelease((key) => {
+    k.onKeyRelease((key: string) => {
+        if (!(key in keyMappings)) return; // invalid input, do nothing
+        const action = keyMappings[key as keyof KeyMap]; // fetch action for pressed key
+        actionState[action] = false; // sets the actionstate for the requested action to inactive
+
         if (key == 'z' || key == '1') {
             if (player.isFull) { // an enemy is currently swallowed (ready to be spit out)
                 player.play("kirbInhaling"); // same sprite/animation for inhaling and spitting
@@ -218,6 +211,29 @@ export function setControls(k: KaboomCtx, player: PlayerGameObj) {
             inhaleEffectRef.opacity = 0; // hide inhale effect
             player.isInhaling = false; // no longer inhaling
             player.play("kirbIdle"); // revert to default sprite
+        }
+    });
+
+    k.onUpdate(() => {
+        if (actionState.moveLeft && !actionState.moveRight) {
+            player.direction = "left";
+            player.flipX = true; // flip the sprite 
+            player.move(-player.speed, 0); // we use - to move to the left
+        } else if (actionState.moveRight && !actionState.moveLeft) {
+            player.direction = "right";
+            player.flipX = false;
+            player.move(player.speed, 0);
+        }
+
+        if (actionState.inhale) {
+            if (player.isFull) {
+                player.play("kirbFull"); // play kirbFull animation
+                inhaleEffectRef.opacity = 0; // hide the inhale effect
+            } else {
+                player.isInhaling = true;
+                player.play("kirbInhaling"); // play inhale effect animation
+                inhaleEffectRef.opacity = 1; // show the inhale effect
+            }
         }
     });
 };
