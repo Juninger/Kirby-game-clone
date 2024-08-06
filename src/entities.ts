@@ -103,7 +103,7 @@ export function makePlayer(k: KaboomCtx, posX: number, posY: number) {
 
     // logic for when the player finishes a level
     player.onCollide("exit", () => {
-        k.go("level-2"); // replace with logic for "next scene" instead
+        k.go("level-1"); // placeholder value (replace with logic for "next scene" instead)
     });
 
     // assembles the game object for the inhale effect
